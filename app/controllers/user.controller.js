@@ -179,7 +179,7 @@ exports.delete = (req, res) => {
             return res.status(404).send({
                 message: "User not found with id " + req.query.id
             });                
-        }
+        } 
         return res.status(500).send({
             message: "Could not delete user with id " + req.query.id
         });
