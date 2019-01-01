@@ -172,7 +172,7 @@ exports.delete = (req, res) => {
             return res.status(404).send({
                 message: "Note not found with id " + req.query.id
             });
-        }
+        } 
         res.status(200).send({message: "User deleted successfully!"});
     }).catch(err => {
         if(err.kind === 'ObjectId' || err.name === 'NotFound') {
