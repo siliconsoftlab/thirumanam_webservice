@@ -9,8 +9,14 @@
   "author": "Saravanan C",
   "license": "ISC",
   "dependencies": {
+    "basic-auth": "^2.0.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "mongoose": "^5.4.1"
+    "jsonwebtoken": "^8.4.0",
+    "mongoose": "^5.4.1",
+    "morgan": "^1.9.1",
+    "nodemailer": "^5.0.0",
+    "randomstring": "^1.1.5"
   }
 }

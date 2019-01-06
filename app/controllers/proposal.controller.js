@@ -1,32 +1,29 @@
-const User= require('../models/user.model.js');
+const Proposal= require('../models/proposal.model.js');
 
-// Create and Save an new User
+// Create a new proposal
 exports.create = (req, res) => {
-    /*console.log("create");
-    console.log("req.body.password "+req.body.password);
-    console.log("req.body.id "+req.body.id);
-    var id=req.body.id;
-    var password=req.body.password;*/
-    // Validate request
-    if(isEmpty(req.body.id) || isEmpty(req.body.name) || isEmpty(req.body.sex) || isEmpty(req.body.password)){
+    if(isEmpty(req.body.id) || isEmpty(req.body.matchId) || isEmpty(req.body.status) || isEmpty(req.body.remarks)){
         return res.status(400).send({
-            message: "One or more user data is not valid "
+            message: "One or more proposal data is not valid "
         });
     }
   
    
-    // Create a User
-    const user = new User({
+    // Create a proposal
+   
+
+    const proposal = new Proposal({
         id: req.body.id,
-        name: req.body.name,
-        sex: req.body.sex,
-        password : req.body.password
+        matchId: req.body.matchId,
+        status: req.body.status,
+        remarks : req.body.remarks
 
     });
+    
 
     // Save User in the database
     
-    user.save()
+    proposal.save()
     .then(data => {
         res.status(201).send(data);
     }).catch(err => {
@@ -42,35 +39,8 @@ exports.create = (req, res) => {
     });
 };
 
-// Check users authentication based on id and password.
-exports.login = (req, res) => {
 
-    if(isEmpty(req.query.id) || isEmpty(req.query.password)){
-        return res.status(400).send({
-            message: "Either Id or Password is not valid "
-        });
-    }
-    User.findOne({id:req.query.id,password:req.query.password}).then(user=>{
-        if(!user) {
-            return res.status(404).send({
-                message: "User not found with id " +req.query.id
-            });            
-        }
-        res.status(200).send(user);
-    }).catch(err=>{
-        console.log("err "+err.kind);
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "User not found with id " +req.body.id
-            });                
-        }
-        return res.status(500).send({
-            message: "Error retrieving User with id " +req.body.id
-        });
-    });
-    
-};
-// Retrieve and return all users from the database.
+// Retrieve all proposals for an  user
 exports.findAll = (req, res) => {
 
     if(isEmpty(req.query.sex)){
@@ -104,44 +74,17 @@ exports.findAll = (req, res) => {
     });
 };
 
-// Find a single user with a userid
-exports.findOne = (req, res) => {
-   
-    if(isEmpty(req.query.id)){
-        return res.status(404).send({
-            message: "Either Id is not valid "
-        });
-    }
-    User.findOne({id:req.query.id}).then(user=>{
-        if(!user) {
-            return res.status(404).send({
-                message: "User not found with id " +req.query.id
-            });            
-        }
-        res.status(200).send(user);
-    }).catch(err=>{
-        console.log("err "+err.kind);
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "User not found with id " +req.body.id
-            });                
-        }
-        return res.status(500).send({
-            message: "Error retrieving User with id " +req.body.id
-        });
-    });
-};
-
-// Update a user identified by the userid in the request
+// Update a proposal by the userid or match id 
 exports.update = (req, res) => {
     if(isEmpty(req.body.id)){
         return res.status(400).send({
             message: "Id is not valid "
         });
     }
-    var user = new User();
-    user=req.body;
-    User.findOneAndUpdate({id:user.id}, user, {new: true})
+    var proposal = new Proposal();
+    proposal=req.body;
+    Proposal.up
+    Proposal.findOneAndUpdate({id:proposal.id}, proposal, {new: true})
     .then(user => {
         if(!user) {
             return res.status(404).send({
@@ -163,7 +106,7 @@ exports.update = (req, res) => {
     
 };
 
-// Delete a user with the specified userid in the request
+// Delete a proposal userid in the request
 exports.delete = (req, res) => {
    //console.log("Delete "+req.query.id);
     User.findOneAndDelete({id:req.query.id})
