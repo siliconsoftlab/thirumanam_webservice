@@ -1,45 +1,5 @@
 const Proposal= require('../models/proposal.model.js');
 
-// Create a new proposal
-exports.create = (req, res) => {
-    if(isEmpty(req.body.id) || isEmpty(req.body.matchId) || isEmpty(req.body.status) || isEmpty(req.body.remarks)){
-        return res.status(400).send({
-            message: "One or more proposal data is not valid "
-        });
-    }
-  
-   
-    // Create a proposal
-   
-
-    const proposal = new Proposal({
-        id: req.body.id,
-        matchId: req.body.matchId,
-        status: req.body.status,
-        remarks : req.body.remarks
-
-    });
-    
-
-    // Save User in the database
-    
-    proposal.save()
-    .then(data => {
-        res.status(201).send(data);
-    }).catch(err => {
-        if(err.code==11000){
-            res.status(400).send({
-                message: err.message || "Some error occurred while creating the Note."
-            });
-        }else{
-        res.status(500).send({
-            message: err.message || "Some error occurred while creating the Note."
-        });
-        }
-    });
-};
-
-
 // Retrieve all proposals for an  user
 exports.findAll = (req, res) => {
 
@@ -102,6 +62,51 @@ exports.update = (req, res) => {
             message: err.message || "Error updating note with id " + req.body.id
         });
     });
+
+    
+};
+
+// Update or creare proposal by the userid or match id 
+exports.updateOrCreate = (req, res) => {
+    console.log("Update or cretae");
+    if(isEmpty(req.body.id)){
+        return res.status(400).send({
+            message: "Id is not valid "
+        });
+    }
+    var proposal = new Proposal();
+    proposal=req.body;
+    Proposal.up
+    Proposal.updateOne({id:proposal.id}, proposal,{upsert: true, setDefaultsOnInsert: true},function(err, data){
+       
+
+        if(err){
+            console.log(err);
+           return res.status(400).send({
+                message: err.message || "Some error occurred while creating the Note."
+            });
+        }
+       // console.log(data);
+        return res.status(201).send(data);
+        
+    })
+    /*.then(user => {
+        if(!user) {
+            return res.status(404).send({
+                message: "User not found with id " +req.body.id
+            });
+        }
+        res.status(200).send(user);
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: err.message || "User not found with id " + req.body.id
+            });                
+        }
+        return res.status(500).send({
+            message: err.message || "Error updating note with id " + req.body.id
+        });
+    });*/
 
     
 };
