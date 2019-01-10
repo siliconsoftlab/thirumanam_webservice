@@ -169,7 +169,11 @@ exports.update = (req, res) => {
 
 
 // Update a use's incoming & outgoing proposals identified by the userid in the request
-exports.update = (req, res) => {
+exports.updateProposal = (req, res) => {
+
+   // console.log("req.body.id"+ JSON.stringify(req.body));
+    console.log("req.body.id"+req.body.id);
+   console.log("req.body.incomingInterest.matchId "+req.body.incomingInterest)
     if(isEmpty(req.body.id)){
         return res.status(400).send({
             message: "Id is not valid "
@@ -177,13 +181,17 @@ exports.update = (req, res) => {
     }
     var user = new User();
     user=req.body;
-    User.findOneAndUpdate({id:user.id,'id.incomingInterest.matchId':user.id}, user, {new: true})
+    User.updateOne({id:user.id,'incomingInterest.matchId':18}, {'$set': {
+        'incomingInterest.$.status': '!!!!!!',
+        'incomingInterest.$.remarks': '####'
+    }}, {new: true})
     .then(user => {
         if(!user) {
             return res.status(404).send({
                 message: "User not found with id " +req.body.id
             });
         }
+        console.log("!!!!!!");
         res.status(200).send(user);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
@@ -200,6 +208,42 @@ exports.update = (req, res) => {
 };
 
 
+// Update a use's incoming & outgoing proposals identified by the userid in the request
+exports.addProposal = (req, res) => {
+
+    // console.log("req.body.id"+ JSON.stringify(req.body));
+     console.log("req.body.id"+req.body.id);
+    console.log("req.body.incomingInterest.matchId "+req.body.incomingInterest)
+     if(isEmpty(req.body.id)){
+         return res.status(400).send({
+             message: "Id is not valid "
+         });
+     }
+     var user = new User();
+     user=req.body;
+     User.updateOne({id:user.id,'incomingInterest.matchId':18}, {$push: { incomingInterest: {id:10}}} , {new: true})
+     .then(user => {
+         if(!user) {
+             return res.status(404).send({
+                 message: "User not found with id " +req.body.id
+             });
+         }
+         console.log("!!!!!!");
+         res.status(200).send(user);
+     }).catch(err => {
+         if(err.kind === 'ObjectId') {
+             return res.status(404).send({
+                 message: err.message || "User not found with id " + req.body.id
+             });                
+         }
+         return res.status(500).send({
+             message: err.message || "Error updating note with id " + req.body.id
+         });
+     });
+ 
+     
+ };
+ 
 
 // Delete a user with the specified userid in the request
 exports.delete = (req, res) => {

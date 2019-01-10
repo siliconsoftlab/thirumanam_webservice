@@ -13,8 +13,14 @@ module.exports = (app) => {
     // Retrieve a single User with UserId
     app.post('/userDetail', users.findOne);
 
-    // Update an User with UserId
+    // Update an User profile with UserId
     app.put('/user', users.update);
+
+     // Add proposal with UserId
+    app.post('/user/proposal', users.addProposal);
+    
+    // Update an User's proposals with UserId
+    app.put('/user/proposal', users.updateProposal);
 
     // Delete a Note with noteId
     app.delete('/deleteUser', users.delete); 
