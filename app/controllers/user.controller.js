@@ -42,18 +42,20 @@ exports.create = (req, res) => {
     });
 };
 
+
 // Check users authentication based on id and password.
 exports.login = (req, res) => {
-
-    if(isEmpty(req.query.id) || isEmpty(req.query.password)){
+console.log(req.body.id);
+console.log(req.body.password);
+    if(isEmpty(req.body.id) || isEmpty(req.body.password)){
         return res.status(400).send({
             message: "Either Id or Password is not valid "
         });
     }
-    User.findOne({id:req.query.id,password:req.query.password}).then(user=>{
+    User.findOne({id:req.body.id,password:req.body.password}).then(user=>{
         if(!user) {
             return res.status(404).send({
-                message: "User not found with id " +req.query.id
+                message: "User not found with id " +req.body.id
             });            
         }
         res.status(200).send(user);
@@ -70,6 +72,7 @@ exports.login = (req, res) => {
     });
     
 };
+
 // Retrieve and return all users from the database.
 exports.findAll = (req, res) => {
 
@@ -132,7 +135,7 @@ exports.findOne = (req, res) => {
     });
 };
 
-// Update a user identified by the userid in the request
+// Update a user profile identified by the userid in the request
 exports.update = (req, res) => {
     if(isEmpty(req.body.id)){
         return res.status(400).send({
@@ -163,6 +166,41 @@ exports.update = (req, res) => {
     
 };
 
+
+
+// Update a use's incoming & outgoing proposals identified by the userid in the request
+exports.update = (req, res) => {
+    if(isEmpty(req.body.id)){
+        return res.status(400).send({
+            message: "Id is not valid "
+        });
+    }
+    var user = new User();
+    user=req.body;
+    User.findOneAndUpdate({id:user.id,'id.incomingInterest.matchId':user.id}, user, {new: true})
+    .then(user => {
+        if(!user) {
+            return res.status(404).send({
+                message: "User not found with id " +req.body.id
+            });
+        }
+        res.status(200).send(user);
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: err.message || "User not found with id " + req.body.id
+            });                
+        }
+        return res.status(500).send({
+            message: err.message || "Error updating note with id " + req.body.id
+        });
+    });
+
+    
+};
+
+
+
 // Delete a user with the specified userid in the request
 exports.delete = (req, res) => {
    //console.log("Delete "+req.query.id);
@@ -185,6 +223,8 @@ exports.delete = (req, res) => {
         });
     });
 }
+
+
 function isEmpty(value) {
    // console.log("is Empty");
     return typeof value == 'string' && !value.trim() || typeof value == 'undefined' || value === null;

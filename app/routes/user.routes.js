@@ -17,8 +17,5 @@ module.exports = (app) => {
     app.put('/user', users.update);
 
     // Delete a Note with noteId
-    app.delete('/deleteUser', users.delete);
-
-    
-    
+    app.delete('/deleteUser', users.delete); 
 }

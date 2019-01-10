@@ -3,33 +3,28 @@ const Proposal= require('../models/proposal.model.js');
 // Retrieve all proposals for an  user
 exports.findAll = (req, res) => {
 
-    if(isEmpty(req.query.sex)){
+    if(isEmpty(req.body.id) ){
         return res.status(400).send({
             message: "Filter is not valid "
         });
     }
-    var sexFilter;
-    if (req.query.sex=="Male"){
-     sexFilter="Female";
-    }else if(req.query.sex=="Female"){
-        sexFilter="Male";
-    }
-    User.find({sex:sexFilter}).then(users=>{
-        if(!users) {
+   
+    Proposal.find({$or:[{id:req.body.id},{matchId:req.body.id}]}).then(proposals=>{
+        if(!proposals) {
             return res.status(404).send({
                 message: "No Users found for your query"
             });            
         }
-        res.status(200).send(users);
+        res.status(200).send(proposals);
     }).catch(err=>{
         console.log("err "+err.kind);
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
-                message: "No Users found for your query"
+                message: "No proposal found for your query"
             });                
         }
         return res.status(500).send({
-            message: "Error while retrieving Users "
+            message: "Error while retrieving proposals "
         });
     });
 };
@@ -43,7 +38,6 @@ exports.update = (req, res) => {
     }
     var proposal = new Proposal();
     proposal=req.body;
-    Proposal.up
     Proposal.findOneAndUpdate({id:proposal.id}, proposal, {new: true})
     .then(user => {
         if(!user) {
@@ -68,7 +62,6 @@ exports.update = (req, res) => {
 
 // Update or creare proposal by the userid or match id 
 exports.updateOrCreate = (req, res) => {
-    console.log("Update or cretae");
     if(isEmpty(req.body.id)){
         return res.status(400).send({
             message: "Id is not valid "
@@ -90,25 +83,6 @@ exports.updateOrCreate = (req, res) => {
         return res.status(201).send(data);
         
     })
-    /*.then(user => {
-        if(!user) {
-            return res.status(404).send({
-                message: "User not found with id " +req.body.id
-            });
-        }
-        res.status(200).send(user);
-    }).catch(err => {
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: err.message || "User not found with id " + req.body.id
-            });                
-        }
-        return res.status(500).send({
-            message: err.message || "Error updating note with id " + req.body.id
-        });
-    });*/
-
-    
 };
 
 // Delete a proposal userid in the request

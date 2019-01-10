@@ -6,11 +6,13 @@ const UserSchema = mongoose.Schema({
     password :  String,
     incomingInterest: [
         {matchId:Number,
-        status:String}
+        status:String,
+        remarks:String}
     ],
     outgoingInterest: [
         {matchId:Number,
-        status:String}
+        status:String,
+        remarks:String}
     ]
 }, {
     timestamps: true
