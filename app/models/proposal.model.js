@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const ProposalSchema = mongoose.Schema({
-    id:Number, 
-    matchId: Number,
+    id:{ type: Number, ref: 'users.id' }, 
+    matchId: { type: Number, ref: 'users.id' }, 
     status:  String,
     remarks :  String,
 }, {

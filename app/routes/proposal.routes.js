@@ -6,8 +6,12 @@ module.exports = (app) => {
     app.post('/proposal', proposal.updateOrCreate);
     
     // Retrieve all Users
-    app.post('/proposals', proposal.findAll);
+    app.post('/proposals/sent', proposal.findOutgoingProposals);
 
+    // Retrieve all Users
+    app.post('/proposals/inbox', proposal.findIncomingProposals);
+
+    
     // Update an User with UserId
     app.put('/proposal', proposal.update);
 
