@@ -1,24 +1,20 @@
 module.exports = (app) => {
     const proposal = require('../controllers/proposal.controller.js');
-
+    const checkAuth = require('../middleware/check-auth');
   
     // Create or Update Update  an User with UserId
-    app.post('/proposal', proposal.updateOrCreate);
+    app.post('/user/proposal',checkAuth, proposal.updateOrCreate);
     
     // Retrieve all Users
-    app.post('/proposals/sent', proposal.findOutgoingProposals);
+    app.post('/user/sent',checkAuth, proposal.findOutgoingProposals);
 
     // Retrieve all Users
-    app.post('/proposals/inbox', proposal.findIncomingProposals);
+    app.post('/user/inbox',checkAuth, proposal.findIncomingProposals);
 
     
-    // Update an User with UserId
+    /*
     app.put('/proposal', proposal.update);
-
-    
-    
-    // Delete a Note with noteId
-    app.delete('/proposal', proposal.delete);
+    app.delete('/proposal', proposal.delete);*/
 
     
     
