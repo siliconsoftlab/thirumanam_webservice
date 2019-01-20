@@ -1,22 +1,14 @@
 const User = require('../models/user.model.js');
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken"); 
-exports.uploadImage = (req, res) => {
+const jwt = require("jsonwebtoken");
+var fs = require('fs');
 
-};
 
 // Create and Save an new User
 exports.signup = (req, res) => {
-    console.log("singup " + JSON.stringify(req.body));
-    if (isEmpty(req.body.id) || isEmpty(req.body.name) || isEmpty(req.body.sex) || isEmpty(req.body.password)) {
-        return res.status(400).send({
-            message: "One or more user data is not valid "
-        });
-    }
-
     User.find({ email: req.body.email }).exec().then(user => {
-        console.log("find " + JSON.stringify(user));
+        console.log("find " + JSON.stringify(req.file));
         console.log("length " + user.length);
         if (user.length >= 1) {
             return res.status(409).json({
@@ -35,8 +27,8 @@ exports.signup = (req, res) => {
                         name: req.body.name,
                         sex: req.body.sex,
                         email: req.body.email,
-                        password: hash
-
+                        password: hash,
+                        profileImage: req.file.filename
                     });
                     user.save()
                         .then(data => {
@@ -68,12 +60,6 @@ exports.signup = (req, res) => {
 };
 // Check users authentication based on id and password.
 exports.login = (req, res) => {
-    if (isEmpty(req.body.id) || isEmpty(req.body.password)) {
-        return res.status(400).send({
-            message: "Either Id or Password is not valid "
-        });
-    }
-
 
     User.find({ email: req.body.email }).exec().then(user => {
         if (user.length < 1) {
@@ -86,21 +72,35 @@ exports.login = (req, res) => {
                     return res.status(401).json({
                         message: "Auth failed"
                     });
-                }if (result){
+                } if (result) {
                     const token = jwt.sign(
                         {
-                          email: user[0].email,
-                          id: user[0].id
+                            email: user[0].email,
+                            id: user[0].id
                         },
                         "secret",
                         {
                             expiresIn: "1h"
                         }
-                      );
-                      return res.status(200).json({
+                    );
+                    return res.status(200).json({
                         message: "Auth successful",
-                        token: token
-                      });
+                        token: token,
+                        user: {
+                            _id: user[0]._id,
+                            id: user[0].id,
+                            name: user[0].name,
+                            sex: user[0].sex,
+                            profileImage: 'http://localhost:9000/user/images/' + user[0].id + "/" + user[0].profileImage,
+                            imageCount: user[0].images.length,
+                            images: user[0].images.map(image => {
+                                return {
+                                    url: 'http://localhost:9000/user/images/' + user[0].id + "/" + image
+
+                                }
+                            })
+                        }
+                    });
                 }
                 return res.status(401).json({
                     message: "Auth failed"
@@ -109,29 +109,29 @@ exports.login = (req, res) => {
         }
     }).catch()
 
-   /*User.findOne({ id: req.body.id, password: req.body.password }).then(user => {
-        if (!user) {
-            return res.status(404).send({
-                message: "User not found with id " + req.body.id
-            });
-        } else {
-            const result = {
-                status: "Authorised",
-                UserData: user
-            }
-            res.status(200).json(result);
-        }
-    }).catch(err => {
-        console.log("err " + err.kind);
-        if (err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "User not found with id " + req.body.id
-            });
-        }
-        return res.status(500).send({
-            message: "Error retrieving User with id " + req.body.id
-        });
-    });*/
+    /*User.findOne({ id: req.body.id, password: req.body.password }).then(user => {
+         if (!user) {
+             return res.status(404).send({
+                 message: "User not found with id " + req.body.id
+             });
+         } else {
+             const result = {
+                 status: "Authorised",
+                 UserData: user
+             }
+             res.status(200).json(result);
+         }
+     }).catch(err => {
+         console.log("err " + err.kind);
+         if (err.kind === 'ObjectId') {
+             return res.status(404).send({
+                 message: "User not found with id " + req.body.id
+             });
+         }
+         return res.status(500).send({
+             message: "Error retrieving User with id " + req.body.id
+         });
+     });*/
 
 };
 
@@ -189,8 +189,8 @@ exports.getMatches = (req, res) => {
 
 // Find a single user with a userid
 exports.userDetail = (req, res) => {
-console.log(req.params.id);
-//console.log(req.query);
+    console.log(req.params.id);
+    //console.log(req.query);
 
     if (isEmpty(req.params.id)) {
         return res.status(404).send({
@@ -248,8 +248,143 @@ exports.updateUserProfile = (req, res) => {
 
 };
 
+
+exports.uploadPic = (req, res) => {
+  // console.log(req.files.length);
+    var images = [];
+    for (var i = 0; i < req.files.length; i++) {
+        console.log(req.files[i].filename);
+        images.push(req.files[i].filename);
+    }
+
+
+    User.findOneAndUpdate(
+        { id: req.params.id },
+        { $push: { images: images } },
+        { new: true })
+        .then(user => {
+            if (!user) {
+                return res.status(404).send({
+                    message: "User not found with id " + req.body.id
+                });
+            }
+            res.status(201).json({
+                "Message": "Images uploaded",
+                "Images":images
+            });
+        }).catch(err => {
+            //console.log(err);
+            if (err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: err.message || "User not found with id " + req.body.id
+                });
+            }
+            return res.status(500).send({
+                message: err.message || "Error updating note with id " + req.body.id
+            });
+        });
+
+
+};
+
+exports.getPicture = (req, res) => {
+
+    // Send default image if error
+    var file = './user/images/' + req.params.id + '/' + req.params.pic;
+    fs.stat(file, function (err, stat) {
+        if (err) {
+            return res.status(400).send({
+                message: "Not valid path "
+            });
+        }
+        var img = fs.readFileSync(file);
+        res.contentType = 'image/jpeg';
+        res.contentLength = stat.size;
+        res.end(img, 'binary');
+        return res.status(200).send();
+    });
+
+
+
+};
+
+exports.getPictures = (req, res) => {
+    console.log("getPictures");
+    // Send default image if error
+    var file = './user/images/' + req.params.id
+    console.log("file path" + file);
+    fs.stat(file, function (err, stat) {
+        if (err) {
+            return res.status(400).send({
+                message: "Not valid path "
+            });
+        }
+        var img = fs.readFileSync(file);
+        res.contentType = 'image/jpeg';
+        res.contentLength = stat.size;
+        res.end(img, 'binary');
+        return res.status(200).send();
+    });
+
+
+
+};
+
+exports.deletePicture = (req, res) => {
+    console.log(" Delete " + req.params.pic);
+    // Send default image if error
+    var file = './user/images/' + req.params.id + '/' + req.params.pic;
+    User.findOneAndUpdate(
+        { id: req.params.id },
+        { $pull: { images: req.params.pic } },
+        { new: true })
+        .then(user => {
+            if (!user) {
+                return res.status(404).send({
+                    message: "User not found with id " + req.body.id
+                });
+            }
+            // delete file named 'sample.txt'
+            fs.unlink(file, function (err) {
+                if (err) throw err;
+                // if no error, file has been deleted successfully
+                console.log('File deleted!');
+                res.status(200).json({
+                    "Message": "Image deleted "+ req.params.pic
+                });
+            });
+            
+        }).catch(err => {
+            //console.log(err);
+            if (err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: err.message || "User not found with id " + req.body.id
+                });
+            }
+            return res.status(500).send({
+                message: err.message || "Error updating note with id " + req.body.id
+            });
+        });
+
+
+    /* fs.stat(file, function (err, stat) {
+         if(err){
+            return res.status(400).send({
+                message: "Not valid path "
+            });
+         }
+         var img = fs.readFileSync(file);
+         res.contentType = 'image/jpeg';
+         res.contentLength = stat.size;
+         res.end(img, 'binary');
+         return res.status(200).send();
+     });*/
+
+
+
+};
 // Update a user's incoming & outgoing proposals identified by the userid in the request
-exports.updateProposal = (req, res) => {
+/*exports.updateProposal = (req, res) => {
 
     // console.log("req.body.id"+ JSON.stringify(req.body));
     // console.log("req.body.id"+req.body.id);
@@ -393,7 +528,7 @@ exports.getProsposals = (req, res) => {
             return res.status(200).send(docs);
         });
     });
-};
+};*/
 
 // Delete a user with the specified userid in the request
 exports.delete = (req, res) => {

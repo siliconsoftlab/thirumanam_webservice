@@ -9,7 +9,6 @@ app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-
 mongoose.Promise = global.Promise;
 mongoose.connect(dbConfig.url, {
     useCreateIndex: true,
