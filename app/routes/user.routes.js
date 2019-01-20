@@ -83,6 +83,9 @@ module.exports = (app) => {
   // Retrieve a single User with UserId
   app.get('/user/:id', checkAuth, users.userDetail);
 
+ // Retrieve a single User with UserId
+ app.delete('/user/:id', checkAuth, users.deleteUser);
+
   // Update an User profile with UserId
   app.put('/user', checkAuth, users.updateUserProfile);
 

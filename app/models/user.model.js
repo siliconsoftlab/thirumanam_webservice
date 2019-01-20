@@ -9,7 +9,8 @@ const UserSchema = mongoose.Schema({
     sex:  {type:String, required: true}, 
     password : {type:String,required: true}, 
     profileImage: {type:String, required: true}, 
-    images:[{type:String}]
+    images:[{type:String}],
+    status:{type:String,required: true}
     
 }, {
     timestamps: true

@@ -8,8 +8,6 @@ var fs = require('fs');
 // Create and Save an new User
 exports.signup = (req, res) => {
     User.find({ email: req.body.email }).exec().then(user => {
-        console.log("find " + JSON.stringify(req.file));
-        console.log("length " + user.length);
         if (user.length >= 1) {
             return res.status(409).json({
                 message: "Mail ID already exists"
@@ -28,7 +26,8 @@ exports.signup = (req, res) => {
                         sex: req.body.sex,
                         email: req.body.email,
                         password: hash,
-                        profileImage: req.file.filename
+                        profileImage: req.file.filename,
+                        status:req.body.status
                     });
                     user.save()
                         .then(data => {
@@ -185,6 +184,40 @@ exports.getMatches = (req, res) => {
             message: "Error while retrieving Users "
         });
     });
+};
+
+// Find a single user with a userid
+exports.deleteUser = (req, res) => {
+    console.log("Delte");
+    console.log(req.params.id);
+    if (isEmpty(req.params.id)) {
+        return res.status(400).send({
+            message: "Id is not valid "
+        });
+    }
+    
+    User.findOneAndUpdate({ id: req.params.id}, {status:"Deactivated"}, { new: true })
+        .then(user => {
+            if (!user) {
+                return res.status(404).send({
+                    message: "User not found with id " + req.body.id
+                });
+            }
+             res.status(200).json({
+                 message:" User deactivated"
+             });
+           
+        }).catch(err => {
+            if (err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: err.message || "User not found with id " + req.body.id
+                });
+            }
+            return res.status(500).send({
+                message: err.message || "Error updating note with id " + req.body.id
+            });
+        });
+
 };
 
 // Find a single user with a userid
