@@ -586,7 +586,7 @@ exports.delete = (req, res) => {
         });
 }
 
-
+// Loin view page
 exports.login = (req, res) => {
     res.render('../views/employee/create.ejs');
 }
