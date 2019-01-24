@@ -75,7 +75,7 @@ module.exports = (app) => {
   app.post('/user/signup', upload.single('profileImage'), users.signup);
 
   // Login
-  app.post('/user/login', users.login);
+  app.post('/user/login', users.checkLogin);
 
   // Retrieve all Users
   app.post('/users', checkAuth, users.getMatches);
@@ -107,4 +107,8 @@ module.exports = (app) => {
 
   // Delete a Note with noteId
   app.delete('/deleteUser', users.delete);
+
+  //view for login
+
+  app.get('/create', users.login);
 }

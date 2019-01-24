@@ -58,7 +58,7 @@ exports.signup = (req, res) => {
     });
 };
 // Check users authentication based on id and password.
-exports.login = (req, res) => {
+exports.checkLogin = (req, res) => {
 
     User.find({ email: req.body.email }).exec().then(user => {
         if (user.length < 1) {
@@ -584,6 +584,11 @@ exports.delete = (req, res) => {
                 message: "Could not delete user with id " + req.query.id
             });
         });
+}
+
+
+exports.login = (req, res) => {
+    res.render('../views/employee/create.ejs');
 }
 
 
